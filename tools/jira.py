@@ -1,24 +1,26 @@
 import requests
-from requests.auth import HTTPBasicAuth
-from config import ATLASSIAN_URL, ATLASSIAN_EMAIL, ATLASSIAN_TOKEN
+from config import ATLASSIAN_URL, ATLASSIAN_TOKEN
 
 
 class JiraClient:
     def __init__(self):
-        self.base    = f"{ATLASSIAN_URL}/rest/api/3"
-        self.auth    = HTTPBasicAuth(ATLASSIAN_EMAIL, ATLASSIAN_TOKEN)
-        self.headers = {"Accept": "application/json", "Content-Type": "application/json"}
+        self.base    = f"{ATLASSIAN_URL}/rest/api/2"
+        self.headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {ATLASSIAN_TOKEN}"
+        }
 
     def _req(self, method, endpoint, **kwargs):
         r = requests.request(
             method, f"{self.base}/{endpoint}",
-            auth=self.auth, headers=self.headers, **kwargs
+            headers=self.headers, **kwargs
         )
         r.raise_for_status()
         return r.json() if r.content else {}
 
     def search_issues(self, jql: str, max_results: int = 10):
-        data = self._req("POST", "issue/search", json={
+        data = self._req("GET", "search", params={
             "jql": jql,
             "maxResults": max_results,
             "fields": ["summary", "status", "assignee", "priority", "issuetype"],
@@ -59,11 +61,7 @@ class JiraClient:
             "summary":     summary,
             "issuetype":   {"name": issue_type},
             "priority":    {"name": priority},
-            "description": {
-                "type": "doc", "version": 1,
-                "content": [{"type": "paragraph",
-                             "content": [{"type": "text", "text": description}]}],
-            },
+            "description": description,
         }}
         data = self._req("POST", "issue", json=payload)
         return {"key": data["key"], "url": f"{ATLASSIAN_URL}/browse/{data['key']}"}
@@ -82,11 +80,7 @@ class JiraClient:
         return {"key": issue_key, "new_status": transition_name}
 
     def add_comment(self, issue_key: str, comment: str):
-        payload = {"body": {
-            "type": "doc", "version": 1,
-            "content": [{"type": "paragraph",
-                         "content": [{"type": "text", "text": comment}]}],
-        }}
+        payload = {"body": comment}
         self._req("POST", f"issue/{issue_key}/comment", json=payload)
         return {"key": issue_key, "status": "comment added"}
 
