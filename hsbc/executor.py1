@@ -1,6 +1,7 @@
 import json
 import os
 from dotenv import load_dotenv
+import requests
 
 load_dotenv()
 
@@ -22,11 +23,30 @@ TOOL_MAP = {
 }
 
 
+# def execute_tool(tool_name: str, tool_input: dict) -> str:
+#     if tool_name not in TOOL_MAP:
+#         return json.dumps({"error": f"Unknown tool: {tool_name}"}, ensure_ascii=False)
+#     try:
+#         result = TOOL_MAP[tool_name](tool_input)
+#         return json.dumps(result, ensure_ascii=False, indent=2)
+#     except Exception as e:
+#         return json.dumps({"error": str(e)}, ensure_ascii=False)
+
 def execute_tool(tool_name: str, tool_input: dict) -> str:
     if tool_name not in TOOL_MAP:
-        return json.dumps({"error": f"Unknown tool: {tool_name}"}, ensure_ascii=False)
+        return json.dumps({"error": f"Unknown tool: {tool_name}"})
     try:
         result = TOOL_MAP[tool_name](tool_input)
         return json.dumps(result, ensure_ascii=False, indent=2)
+    except requests.exceptions.HTTPError as e:
+        # Parse Jira's error response for a cleaner message
+        try:
+            detail = e.response.json()
+            messages = detail.get("errorMessages", [])
+            errors = detail.get("errors", {})
+            msg = "; ".join(messages) if messages else str(errors) if errors else str(e)
+        except Exception:
+            msg = str(e)
+        return json.dumps({"error": msg})
     except Exception as e:
-        return json.dumps({"error": str(e)}, ensure_ascii=False)
+        return json.dumps({"error": str(e)})
