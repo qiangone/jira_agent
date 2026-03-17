@@ -21,10 +21,10 @@ class JiraClient:
 
     def search_issues(self, jql: str, max_results: int = 10):
         jql = self._fix_jql(jql)
-        data = self._req("GET", "issue/search", params={
+        data = self._req("GET", "search", params={
             "jql": jql,
             "maxResults": max_results,
-            "fields": ["summary", "status", "assignee", "priority", "issuetype"],
+            "fields": "summary,status,assignee,priority,issuetype",
         })
         return [
             {
