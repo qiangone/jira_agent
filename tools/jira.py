@@ -20,7 +20,8 @@ class JiraClient:
         return r.json() if r.content else {}
 
     def search_issues(self, jql: str, max_results: int = 10):
-        data = self._req("GET", "search", params={
+        jql = self._fix_jql(jql)
+        data = self._req("GET", "issue/search", params={
             "jql": jql,
             "maxResults": max_results,
             "fields": ["summary", "status", "assignee", "priority", "issuetype"],
@@ -94,3 +95,50 @@ class JiraClient:
             raise ValueError("At least one of 'summary' or 'priority' must be provided")
         self._req("PUT", f"issue/{issue_key}", json={"fields": fields})
         return {"key": issue_key, "updated_fields": list(fields.keys())}
+
+    def _fix_jql(self, jql: str) -> str:
+        """Normalize quotes and status names in JQL to handle common variations."""
+        import re
+
+        # Mapping of common status variations to standard forms
+        # Add more mappings as needed for your Jira instance
+        status_mapping = {
+            "to do": "To Do",
+            "todo": "To Do",
+            "to-do": "To Do",
+            "in progress": "In Progress",
+            "inprogress": "In Progress",
+            "in-progress": "In Progress",
+            "done": "Done",
+            "backlog": "Backlog",
+            "open": "Open",
+            "new": "New",
+            "in review": "In Review",
+            "in-review": "In Review",
+        }
+
+        # First, convert single quotes to double quotes
+        jql = re.sub(r"status\s*=\s*'([^']+)'", r'status = "\1"', jql)
+
+        # Then, normalize status values to try common variations
+        def normalize_status(match):
+            prefix = match.group(1)  # e.g., 'status = '
+            status_value = match.group(2)  # e.g., 'To Do'
+
+            # Try exact match first
+            if status_value in status_mapping:
+                return f'{prefix}"{status_mapping[status_value]}"'
+
+            # Try case-insensitive match
+            lower_status = status_value.lower()
+            for key, mapped_value in status_mapping.items():
+                if key == lower_status:
+                    return f'{prefix}"{mapped_value}"'
+
+            # If no mapping found, keep original
+            return f'{prefix}"{status_value}"'
+
+        # Replace status values with normalized ones
+        jql = re.sub(r'(status\s*=\s*)"([^"]+)"', normalize_status, jql)
+
+        return jql
