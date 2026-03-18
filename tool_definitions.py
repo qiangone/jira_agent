@@ -73,6 +73,35 @@ TOOLS = [
     {
         "type": "function",
         "function": {
+            "name": "jira_create_subtask",
+            "description": "Create a subtask under an existing Jira issue (parent).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "project_key": {
+                        "type": "string",
+                        "description": "The project key, e.g. DEV",
+                    },
+                    "parent_key": {
+                        "type": "string",
+                        "description": "The parent issue key, e.g. DEV-42",
+                    },
+                    "summary": {
+                        "type": "string",
+                        "description": "The subtask title/summary",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Detailed description of the subtask (optional)",
+                    },
+                },
+                "required": ["project_key", "parent_key", "summary"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
             "name": "jira_transition_issue",
             "description": "Transition a Jira issue to a new status, e.g. 'In Progress' or 'Done'.",
             "parameters": {
@@ -137,4 +166,26 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "jira_get_subtasks",
+            "description": "Get all subtasks under a parent issue, optionally filtered by summary keyword.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "parent_key": {
+                        "type": "string",
+                        "description": "The parent issue key, e.g. AGENT-1",
+                    },
+                    "summary_filter": {
+                        "type": "string",
+                        "description": "Keyword to filter subtasks by summary (optional)",
+                    },
+                },
+                "required": ["parent_key"],
+            },
+        },
+    },
+    
 ]

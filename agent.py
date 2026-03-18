@@ -12,6 +12,7 @@ Capabilities:
 - Search issues using JQL queries
 - View issue details
 - Create new issues (Task, Bug, Story, etc.)
+- Create sub task
 - Transition issue status (To Do, In Progress, Done, etc.)
 - Add comments to issues
 - Update issue summary or priority

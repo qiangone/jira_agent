@@ -96,6 +96,39 @@ class JiraClient:
         self._req("PUT", f"issue/{issue_key}", json={"fields": fields})
         return {"key": issue_key, "updated_fields": list(fields.keys())}
 
+    def create_subtask(self, project_key: str, parent_key: str,
+                   summary: str, description: str = ""):
+        payload = {"fields": {
+            "project":     {"key": project_key},
+            "parent":      {"key": parent_key},
+            "summary":     summary,
+            "issuetype":   {"name": "Sub-task"},
+            "description": description,
+        }}
+        data = self._req("POST", "issue", json=payload)
+        return {"key": data["key"], "url": f"{ATLASSIAN_URL}/browse/{data['key']}"}
+
+    def get_subtasks(self, parent_key: str, summary_filter: str = None):
+        jql = f'parent="{parent_key}" AND issuetype="Sub-task"'
+        if summary_filter:
+            jql += f' AND summary~"{summary_filter}"'
+        data = self._req("GET", "search", params={
+            "jql": jql,
+            "maxResults": 50,
+            "fields": "summary,status,assignee,priority",
+        })
+        return [
+            {
+                "key":      i["key"],
+                "summary":  i["fields"]["summary"],
+                "status":   i["fields"]["status"]["name"],
+                "assignee": (i["fields"].get("assignee") or {}).get("displayName", "Unassigned"),
+                "priority": (i["fields"].get("priority") or {}).get("name", "-"),
+                "url":      f"{ATLASSIAN_URL}/browse/{i['key']}",
+            }
+            for i in data.get("issues", [])
+        ]
+
     def _fix_jql(self, jql: str) -> str:
         """Normalize quotes and status names in JQL to handle common variations."""
         import re

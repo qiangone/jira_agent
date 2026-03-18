@@ -17,9 +17,11 @@ TOOL_MAP = {
     "jira_search_issues":    lambda p: jira.search_issues(**p),
     "jira_get_issue":        lambda p: jira.get_issue(**p),
     "jira_create_issue":     lambda p: jira.create_issue(**p),
+    "jira_create_subtask":   lambda p: jira.create_subtask(**p),
     "jira_transition_issue": lambda p: jira.transition_issue(**p),
     "jira_add_comment":      lambda p: jira.add_comment(**p),
     "jira_update_issue":     lambda p: jira.update_issue(**p),
+    "jira_get_subtasks":     lambda p: jira.get_subtasks(**p),
 }
 
 
