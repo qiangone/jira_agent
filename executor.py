@@ -2,6 +2,7 @@ import json
 import os
 from dotenv import load_dotenv
 import requests
+from tools.cr_workflow import create_component_cr as _create_component_cr, create_db_cr as _create_db_cr
 
 load_dotenv()
 
@@ -22,6 +23,8 @@ TOOL_MAP = {
     "jira_add_comment":      lambda p: jira.add_comment(**p),
     "jira_update_issue":     lambda p: jira.update_issue(**p),
     "jira_get_subtasks":     lambda p: jira.get_subtasks(**p),
+    "create_component_cr":  lambda p: _create_component_cr(**p),
+    "create_db_cr":         lambda p: _create_db_cr(**p),
 }
 
 
@@ -43,6 +46,7 @@ def execute_tool(tool_name: str, tool_input: dict) -> str:
     except requests.exceptions.HTTPError as e:
         # Parse Jira's error response for a cleaner message
         try:
+            print(e)
             detail = e.response.json()
             messages = detail.get("errorMessages", [])
             errors = detail.get("errors", {})
@@ -51,4 +55,5 @@ def execute_tool(tool_name: str, tool_input: dict) -> str:
             msg = str(e)
         return json.dumps({"error": msg})
     except Exception as e:
+        print(e)
         return json.dumps({"error": str(e)})

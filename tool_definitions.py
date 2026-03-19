@@ -187,5 +187,101 @@ TOOLS = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_component_cr",
+            "description": (
+                "Create a Component Release CR for a Jira issue. "
+                "Use this when the user wants to create a component release. "
+                "Collect ALL required fields from the user before calling this tool."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticket_ref": {
+                        "type": "string",
+                        "description": "The Jira issue key, e.g. AGENT-1",
+                    },
+                    "prod_deployment_ticket_ref": {
+                        "type": "string",
+                        "description": "Production deployment ticket reference",
+                    },
+                    "schedule_start_time": {
+                        "type": "string",
+                        "description": "Scheduled start time, format: 2025-11-08T15:00:00",
+                    },
+                    "implement_plan_confluence": {
+                        "type": "string",
+                        "description": "Confluence page URL for the implementation plan",
+                    },
+                    "artifact_id": {
+                        "type": "string",
+                        "description": "Artifact ID, e.g. com.example:my-service",
+                    },
+                    "version_num": {
+                        "type": "string",
+                        "description": "Version number to deploy, e.g. 1.2.0",
+                    },
+                    "rollback_version_num": {
+                        "type": "string",
+                        "description": "Rollback version number, e.g. 1.1.0",
+                    },
+                },
+                "required": [
+                    "ticket_ref",
+                    "prod_deployment_ticket_ref",
+                    "schedule_start_time",
+                    "implement_plan_confluence",
+                    "artifact_id",
+                    "version_num",
+                    "rollback_version_num",
+                ],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "create_db_cr",
+            "description": (
+                "Create a DB Release CR for a Jira issue. "
+                "Use this when the user wants to create a database release. "
+                "Collect ALL required fields from the user before calling this tool."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticket_ref": {
+                        "type": "string",
+                        "description": "The Jira issue key, e.g. AGENT-1",
+                    },
+                    "prod_deployment_ticket_ref": {
+                        "type": "string",
+                        "description": "Production deployment ticket reference",
+                    },
+                    "schedule_start_time": {
+                        "type": "string",
+                        "description": "Scheduled start time, format: 2025-11-08T15:00:00",
+                    },
+                    "implement_plan_confluence": {
+                        "type": "string",
+                        "description": "Confluence page URL for the implementation plan",
+                    },
+                    "restart_component_artifact_id": {
+                        "type": "string",
+                        "description": "Artifact ID of the component to restart after DB release",
+                    },
+                },
+                "required": [
+                    "ticket_ref",
+                    "prod_deployment_ticket_ref",
+                    "schedule_start_time",
+                    "implement_plan_confluence",
+                    "restart_component_artifact_id",
+                ],
+            },
+        },
+    },
     
 ]

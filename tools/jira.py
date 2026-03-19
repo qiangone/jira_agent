@@ -85,14 +85,17 @@ class JiraClient:
         self._req("POST", f"issue/{issue_key}/comment", json=payload)
         return {"key": issue_key, "status": "comment added"}
 
-    def update_issue(self, issue_key: str, summary: str = None, priority: str = None):
+    def update_issue(self, issue_key: str, summary: str = None,
+                     priority: str = None, custom_fields: dict = None):
         fields = {}
         if summary:
             fields["summary"] = summary
         if priority:
             fields["priority"] = {"name": priority}
+        if custom_fields:
+            fields.update(custom_fields)
         if not fields:
-            raise ValueError("At least one of 'summary' or 'priority' must be provided")
+            raise ValueError("At least one field must be provided")
         self._req("PUT", f"issue/{issue_key}", json={"fields": fields})
         return {"key": issue_key, "updated_fields": list(fields.keys())}
 
