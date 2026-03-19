@@ -1,0 +1,17 @@
+ATLASSIAN_URL=http://localhost:8080
+ATLASSIAN_EMAIL=
+ATLASSIAN_API_TOKEN=
+OPENAI_API_KEY=
+
+# Set to true for local testing without a real Atlassian account
+JIRA_MOCK=false
+
+# CR API settings
+CR_API_URL=http://your-cr-system/api
+CR_API_TOKEN=
+
+# Jira field to store CR ID (find your field ID in Jira admin)
+CR_JIRA_CUSTOM_FIELD=customfield_xxxxx
+
+# Jira status to transition to after CR creation
+CR_JIRA_TRANSITION=In Progress
